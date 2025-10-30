@@ -1,0 +1,14 @@
+{
+  "alpha_order": ["Aaa", "Aa", "A", "Baa", "Ba", "B", "Caa", "Ca"],
+  "alpha_numeric": {
+    "Aaa": 1.5,
+    "Aa": 3.0,
+    "A": 4.5,
+    "Baa": 6.0,
+    "Ba": 7.5,
+    "B": 9.0,
+    "Caa": 10.5,
+    "Ca": 12.0
+  },
+  "interpolate_within_band": true
+}
