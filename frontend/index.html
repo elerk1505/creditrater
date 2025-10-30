@@ -1,0 +1,26 @@
+<body>
+  <!-- OpenAI settings panel -->
+  <div style="max-width: 980px; margin: 16px auto; padding: 12px; border: 1px solid #333; border-radius: 10px;">
+    <h3 style="margin:0 0 8px 0;">OpenAI settings</h3>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+      <input id="openaiKey" type="password" placeholder="Paste your OpenAI API key"
+             style="flex:1; min-width:260px; padding:8px;" />
+      <input id="openaiModel" type="text" placeholder="Model (e.g., gpt-4.1-mini)"
+             style="width:180px; padding:8px;" />
+      <label style="display:flex; align-items:center; gap:6px;">
+        <input id="rememberKey" type="checkbox" />
+        Remember on this device
+      </label>
+      <button id="saveOpenAI">Save</button>
+      <button id="clearOpenAI" type="button">Clear</button>
+      <span id="apiSavedMsg" style="display:none; color:#6ad06a;">Saved ✓</span>
+    </div>
+    <p style="margin:8px 0 0 0; font-size:12px; opacity:.8;">
+      Your key never leaves this browser except when sending requests to your own backend.
+    </p>
+  </div>
+
+  <!-- Your app container -->
+  <div id="root"></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
