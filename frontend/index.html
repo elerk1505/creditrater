@@ -1,26 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Credit Scoring App</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .topbar {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; gap: 12px; align-items: center; padding: 10px 14px;
+      border-bottom: 1px solid #2a2a2a; background: #0f1115;
+    }
+    .topbar h1 { font-size: 16px; margin: 0 8px 0 0; opacity: .9; }
+    .keywrap { display:flex; gap:8px; align-items:center; flex:1; max-width: 680px; }
+    .keywrap input[type="password"], .keywrap input[type="text"] {
+      width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #2a2a2a; background:#12151b;
+    }
+    .pill { display:flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid #2a2a2a; border-radius:999px; }
+    .container { max-width: 1100px; margin: 24px auto; padding: 0 16px 80px; }
+    .card { border:1px solid #2a2a2a; border-radius:14px; padding:16px; margin-bottom:14px; background:#0f1115; }
+    .row { display:flex; gap:14px; flex-wrap:wrap; }
+    .row > .card { flex:1 1 320px; }
+    button { padding:8px 12px; border-radius:10px; border:1px solid #2a2a2a; background:#1a1f2a; cursor:pointer; }
+    button.primary { background:#2251e6; border-color:#2251e6; }
+    label { font-size: 12px; opacity:.8; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding:8px 10px; border-bottom:1px solid #20242e; vertical-align: top; }
+    .muted { opacity:.7; }
+  </style>
+</head>
 <body>
-  <!-- OpenAI settings panel -->
-  <div style="max-width: 980px; margin: 16px auto; padding: 12px; border: 1px solid #333; border-radius: 10px;">
-    <h3 style="margin:0 0 8px 0;">OpenAI settings</h3>
-    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-      <input id="openaiKey" type="password" placeholder="Paste your OpenAI API key"
-             style="flex:1; min-width:260px; padding:8px;" />
-      <input id="openaiModel" type="text" placeholder="Model (e.g., gpt-4.1-mini)"
-             style="width:180px; padding:8px;" />
-      <label style="display:flex; align-items:center; gap:6px;">
+  <!-- Top bar with API key + Remember -->
+  <div class="topbar">
+    <h1>Credit Scoring App</h1>
+    <div class="keywrap">
+      <input id="apiKeyInput" type="password" autocomplete="off" placeholder="Enter OpenAI API key (sk-…)" />
+      <label class="pill" title="Show/Hide">
+        <input id="toggleKeyVis" type="checkbox" />
+        Show
+      </label>
+      <label class="pill" title="Remember on this device">
         <input id="rememberKey" type="checkbox" />
         Remember on this device
       </label>
-      <button id="saveOpenAI">Save</button>
-      <button id="clearOpenAI" type="button">Clear</button>
-      <span id="apiSavedMsg" style="display:none; color:#6ad06a;">Saved ✓</span>
+      <button id="saveKeyBtn">Use key</button>
     </div>
-    <p style="margin:8px 0 0 0; font-size:12px; opacity:.8;">
-      Your key never leaves this browser except when sending requests to your own backend.
-    </p>
   </div>
 
-  <!-- Your app container -->
-  <div id="root"></div>
-  <script type="module" src="/src/main.js"></script>
+  <div class="container" id="app">
+    <!-- Upload + Page selection + Autocut/Reset -->
+    <div class="row">
+      <div class="card">
+        <h3>Upload or drag in PDF</h3>
+        <input id="fileInput" type="file" accept="application/pdf" />
+        <div style="margin-top:8px">
+          <label>Pages to cut (e.g., 1-5, 17, 78-90)</label>
+          <input id="cutPages" style="width:100%; margin-top:6px" placeholder="1-5, 17, 78-90" />
+        </div>
+        <div style="margin-top:10px; display:flex; gap:8px">
+          <button id="autocutBtn">Autocut pages</button>
+          <button id="resetCutBtn">Reset</button>
+        </div>
+        <p class="muted" style="margin-top:10px">Cuts sustainability, legal, blank pages, etc.</p>
+      </div>
+
+      <div class="card">
+        <h3>Mode</h3>
+        <div>
+          <label><input type="radio" name="mode" value="text" checked /> Text</label><br/>
+          <label><input type="radio" name="mode" value="text+layout" /> Text + layout</label><br/>
+          <label><input type="radio" name="mode" value="images" /> Page images</label>
+        </div>
+
+        <h3 style="margin-top:14px">Estimate cost</h3>
+        <button id="estimateBtn">Estimate</button>
+        <div id="estimateOut" class="muted" style="margin-top:8px"></div>
+      </div>
+
+      <div class="card">
+        <h3>Select Industry + add any values (optional)</h3>
+        <select id="industrySelect" style="width:100%"></select>
+        <p class="muted" style="margin-top:6px">If you enter qualitative values here, we’ll use them and only find what’s missing.</p>
+        <div id="manualValues" class="muted" style="margin-top:8px">Loaded factors appear after selecting industry.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center">
+        <h3>Analyse</h3>
+        <button id="analyzeBtn" class="primary">Analyse</button>
+      </div>
+      <div id="analyzeStatus" class="muted" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <h3>Results Table</h3>
+      <p class="muted">Shows every component with score, description (and page, if detected), and final score.</p>
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>Factor</th>
+            <th>Weight</th>
+            <th>Value / Description</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="finalScore" style="margin-top:10px; font-weight:600"></div>
+    </div>
+  </div>
+
+  <!-- IMPORTANT: served by FastAPI under /app/ -->
+  <script src="/app/src/main.js" type="module"></script>
 </body>
+</html>
