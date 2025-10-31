@@ -1,0 +1,15 @@
+{
+  "name": "creditrater",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local-first Credit Rater (FastAPI backend, static frontend). No Node build required.",
+  "scripts": {
+    "start": "python -m uvicorn server:app --host 127.0.0.1 --port 5051 --reload",
+    "start:backend": "cd backend && python -m uvicorn server:app --host 127.0.0.1 --port 5051 --reload",
+    "open": "node -e \"require('child_process').exec(process.platform==='win32'?'start http://127.0.0.1:5051/app':'open http://127.0.0.1:5051/app')\""
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18"
+  }
+}
